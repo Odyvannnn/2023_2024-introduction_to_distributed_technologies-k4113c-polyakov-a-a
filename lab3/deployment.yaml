@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lab3-app
+data:
+  REACT_APP_USERNAME: "Polyakov"
+  REACT_APP_COMPANY_NAME: "ITMO"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab3-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lab3-frontend
+  template:
+    metadata:
+      labels:
+        app: lab3-frontend
+    spec:
+      containers:
+      - name: lab3-frontend
+        image: ifilyaninitmo/itdt-contained-frontend:master
+        envFrom:
+          - configMapRef:
+              name: lab3-app
+        ports:
+          - containerPort: 3000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab3-service
+spec:
+  selector:
+    app: lab3-frontend
+  ports:
+    - port: 3000
+      protocol: TCP
+      name: http
+  type: LoadBalancer

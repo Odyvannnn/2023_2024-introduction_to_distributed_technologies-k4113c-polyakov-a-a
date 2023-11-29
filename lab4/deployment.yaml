@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lab4-app
+data:
+  REACT_APP_USERNAME: "Polyakov"
+  REACT_APP_COMPANY_NAME: "ITMO"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab4-deployment
+  labels:
+    app: lab4-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lab4-frontend
+  template:
+    metadata:
+      labels:
+        app: lab4-frontend
+    spec:
+      containers:
+      - name: lab4-frontend
+        image: ifilyaninitmo/itdt-contained-frontend:master
+        envFrom:
+          - configMapRef:
+              name: lab4-app
+        ports:
+          - containerPort: 3000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab4-service
+spec:
+  selector:
+    app: lab4-frontend
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: LoadBalancer
